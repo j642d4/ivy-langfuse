@@ -2,7 +2,6 @@ import { VERSION } from "@/src/constants";
 import { cors, runMiddleware } from "@/src/features/public-api/server/cors";
 import { clickHouseRouteForRequest } from "@/src/features/public-api/server/clickHouseRequestTags";
 import { runHealthCheck } from "@/src/features/public-api/server/health-service";
-import { telemetry } from "@/src/features/telemetry";
 import {
   contextWithLangfuseProps,
   logger,
@@ -17,7 +16,18 @@ export default async function handler(
 ) {
   try {
     await runMiddleware(req, res, cors);
-    await telemetry();
+    // telemetry() is deliberately not called here: it opens a Postgres
+    // transaction (LOCK TABLE cron_jobs ... SHARE ROW EXCLUSIVE MODE) and, on a
+    // fresh install with no cron_jobs row yet, runs six sequential ClickHouse
+    // aggregate queries inside that same transaction before ever reaching the
+    // PostHog capture() call. TELEMETRY_ENABLED=false doesn't prevent this —
+    // telemetry()'s early-return guard is `TELEMETRY_ENABLED === "false" &&
+    // LANGFUSE_EE_LICENSE_KEY === undefined`, and LANGFUSE_EE_LICENSE_KEY
+    // resolves to "" (not literal undefined) via the env schema default even
+    // when unset, so that guard is unreachable for self-hosted deployments
+    // with no EE license. Calling this from the health-check hot path (hit
+    // every 15s by ECS) held the table lock open indefinitely and hung the
+    // process — no crash, no error, health check never responds.
     const ctx = contextWithLangfuseProps({
       headers: req.headers,
       clickhouse: {
