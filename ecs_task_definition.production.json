@@ -1,0 +1,203 @@
+{
+    "family": "<T_FAMILY>",
+    "taskRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/<TR_ARN>",
+    "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/<ER_ARN>",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "volumes": [],
+    "placementConstraints": [],
+    "containerDefinitions": [
+        {
+            "name": "langfuse-web",
+            "image": "<WEB_IMAGE>",
+            "cpu": 512,
+            "memory": 1024,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "NEXTAUTH_URL",
+                    "value": "https://useivy.com/langfuse"
+                },
+                {
+                    "name": "LANGFUSE_INIT_ORG_ID",
+                    "value": ""
+                },
+                {
+                    "name": "CLICKHOUSE_CLUSTER_ENABLED",
+                    "value": "false"
+                },
+                {
+                    "name": "CLICKHOUSE_DB",
+                    "value": "langfuse"
+                },
+                {
+                    "name": "CLICKHOUSE_USER",
+                    "value": "default"
+                },
+                {
+                    "name": "CLICKHOUSE_URL",
+                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
+                },
+                {
+                    "name": "CLICKHOUSE_MIGRATION_URL",
+                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "value": "postgresql://REPLACE_ME:REPLACE_ME@REPLACE_ME-postgres-host:5432/langfuse"
+                },
+                {
+                    "name": "REDIS_CONNECTION_STRING",
+                    "value": "rediss://REPLACE_ME-redis-host:6379"
+                },
+                {
+                    "name": "LANGFUSE_S3_EVENT_UPLOAD_BUCKET",
+                    "value": "REPLACE_ME_production_bucket_not_yet_provisioned"
+                },
+                {
+                    "name": "LANGFUSE_S3_EVENT_UPLOAD_REGION",
+                    "value": "<AWS_REGION>"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "NEXTAUTH_SECRET",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:NEXTAUTH_SECRET::"
+                },
+                {
+                    "name": "SALT",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:SALT::"
+                },
+                {
+                    "name": "ENCRYPTION_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:ENCRYPTION_KEY::"
+                },
+                {
+                    "name": "CLICKHOUSE_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-clickhouse"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -fsS http://localhost:3000/api/public/health || exit 1"
+                ],
+                "interval": 15,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 30
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "<AWS_LG>",
+                    "awslogs-region": "<AWS_REGION>",
+                    "awslogs-stream-prefix": "langfuse-web"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "langfuse-worker",
+            "image": "<WORKER_IMAGE>",
+            "cpu": 512,
+            "memory": 1024,
+            "portMappings": [
+                {
+                    "containerPort": 3030,
+                    "hostPort": 3030,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "dependsOn": [
+                {
+                    "containerName": "langfuse-web",
+                    "condition": "START"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "CLICKHOUSE_CLUSTER_ENABLED",
+                    "value": "false"
+                },
+                {
+                    "name": "CLICKHOUSE_DB",
+                    "value": "langfuse"
+                },
+                {
+                    "name": "CLICKHOUSE_USER",
+                    "value": "default"
+                },
+                {
+                    "name": "CLICKHOUSE_URL",
+                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
+                },
+                {
+                    "name": "CLICKHOUSE_MIGRATION_URL",
+                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "value": "postgresql://REPLACE_ME:REPLACE_ME@REPLACE_ME-postgres-host:5432/langfuse"
+                },
+                {
+                    "name": "REDIS_CONNECTION_STRING",
+                    "value": "rediss://REPLACE_ME-redis-host:6379"
+                },
+                {
+                    "name": "LANGFUSE_S3_EVENT_UPLOAD_BUCKET",
+                    "value": "REPLACE_ME_production_bucket_not_yet_provisioned"
+                },
+                {
+                    "name": "LANGFUSE_S3_EVENT_UPLOAD_REGION",
+                    "value": "<AWS_REGION>"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "ENCRYPTION_KEY",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:ENCRYPTION_KEY::"
+                },
+                {
+                    "name": "CLICKHOUSE_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-clickhouse"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -fsS http://localhost:3030/api/health || exit 1"
+                ],
+                "interval": 15,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 30
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "<AWS_LG>",
+                    "awslogs-region": "<AWS_REGION>",
+                    "awslogs-stream-prefix": "langfuse-worker"
+                }
+            },
+            "systemControls": []
+        }
+    ]
+}
