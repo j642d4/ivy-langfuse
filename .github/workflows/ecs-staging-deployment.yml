@@ -42,7 +42,11 @@ jobs:
           IMAGE_TAG="web-${{ github.sha }}"
           WEB_IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:$IMAGE_TAG"
 
-          docker build \
+          # --no-cache: a stale cached layer for a metadata-only instruction
+          # (ENTRYPOINT/CMD) previously let a source fix land in git without
+          # ever reaching a built image, despite the image tag matching the
+          # commit SHA that contained the fix. Costs build time, not correctness.
+          docker build --no-cache \
             -t $WEB_IMAGE_URI -f web/Dockerfile .
 
           echo "WEB_IMAGE_URI=$WEB_IMAGE_URI" >> $GITHUB_ENV
@@ -54,7 +58,7 @@ jobs:
           IMAGE_TAG="worker-${{ github.sha }}"
           WORKER_IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:$IMAGE_TAG"
 
-          docker build \
+          docker build --no-cache \
             -t $WORKER_IMAGE_URI -f worker/Dockerfile .
 
           echo "WORKER_IMAGE_URI=$WORKER_IMAGE_URI" >> $GITHUB_ENV
