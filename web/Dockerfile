@@ -198,8 +198,17 @@ ENV PORT 3000
 ENTRYPOINT ["dumb-init", "--", "./web/entrypoint.sh"]
 
 # startup command - use dd-trace if NEXT_PUBLIC_LANGFUSE_CLOUD_REGION is configured
+#
+# HOSTNAME=0.0.0.0 is set inline on the node invocation itself, not via `export`
+# earlier in entrypoint.sh: this CMD is its own /bin/sh -c invocation (a second
+# shell hop beyond entrypoint.sh's), and that shell re-derives its own HOSTNAME
+# from the container's kernel hostname (the task ENI's private DNS name in ECS
+# awsvpc mode) at its own startup, clobbering any export from the parent shell.
+# server.js reads process.env.HOSTNAME (default "0.0.0.0") to decide its bind
+# address, so left unset here it ends up bound only to that private IP, never to
+# localhost/127.0.0.1 — which is what health checks actually hit.
 CMD if [ -n "$NEXT_PUBLIC_LANGFUSE_CLOUD_REGION" ]; then \
-    node --import dd-trace/initialize.mjs ./web/server.js --keepAliveTimeout 110000; \
+    HOSTNAME=0.0.0.0 node --import dd-trace/initialize.mjs ./web/server.js --keepAliveTimeout 110000; \
     else \
-    node ./web/server.js --keepAliveTimeout 110000; \
+    HOSTNAME=0.0.0.0 node ./web/server.js --keepAliveTimeout 110000; \
     fi
