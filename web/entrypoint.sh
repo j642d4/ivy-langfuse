@@ -124,5 +124,16 @@ if [ $status -ne 0 ]; then
     exit $status
 fi
 
+# Docker/ECS sets HOSTNAME to the container's own hostname (in ECS awsvpc mode,
+# the task ENI's private DNS name) and the shell re-populates it from the kernel
+# hostname at startup, silently overriding any HOSTNAME set via the task
+# definition's environment list. Next.js's standalone server.js binds to
+# process.env.HOSTNAME (default "0.0.0.0"), so left unset it ends up binding only
+# to that specific private IP — never to localhost/127.0.0.1, which is what
+# health checks (curl/wget localhost) actually hit. Forcing it back to 0.0.0.0
+# here, immediately before exec, is the only point where an external override
+# can't be clobbered by the shell.
+export HOSTNAME=0.0.0.0
+
 # Run the command passed to the docker image on start
 exec "$@"
