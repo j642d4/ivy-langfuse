@@ -19,5 +19,14 @@ if [ -z "$DATABASE_URL" ]; then
     fi
 fi
 
+# See web/entrypoint.sh for the full explanation: Docker/ECS sets HOSTNAME to the
+# container's own hostname (the task ENI's private DNS name in awsvpc mode), which
+# the shell re-populates at startup regardless of what the task definition's
+# environment list specifies. If the worker's HTTP server (health check on 3030)
+# also binds to process.env.HOSTNAME, it ends up reachable only on that specific
+# private IP, never on localhost — forcing it back to 0.0.0.0 here is the one
+# point an external override can't be clobbered.
+export HOSTNAME=0.0.0.0
+
 # Run the command passed to the docker image on start
 exec "$@"
