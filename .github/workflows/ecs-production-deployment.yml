@@ -52,7 +52,8 @@ jobs:
           IMAGE_TAG_SUFFIX="${{ github.ref_name }}"
           WEB_IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID_PROD }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:web-$IMAGE_TAG_SUFFIX"
 
-          docker build \
+          # --no-cache: see ecs-staging-deployment.yml for why this matters here.
+          docker build --no-cache \
             -t $WEB_IMAGE_URI -f web/Dockerfile .
 
           echo "WEB_IMAGE_URI=$WEB_IMAGE_URI" >> $GITHUB_ENV
@@ -64,7 +65,7 @@ jobs:
           IMAGE_TAG_SUFFIX="${{ github.ref_name }}"
           WORKER_IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID_PROD }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:worker-$IMAGE_TAG_SUFFIX"
 
-          docker build \
+          docker build --no-cache \
             -t $WORKER_IMAGE_URI -f worker/Dockerfile .
 
           echo "WORKER_IMAGE_URI=$WORKER_IMAGE_URI" >> $GITHUB_ENV
