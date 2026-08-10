@@ -35,7 +35,7 @@
                 },
                 {
                     "name": "NEXTAUTH_URL",
-                    "value": "https://useivy-staging.com/langfuse"
+                    "value": "https://langfuse.useivy-staging.com"
                 },
                 {
                     "name": "LANGFUSE_INIT_ORG_ID",
@@ -101,7 +101,7 @@
             "healthCheck": {
                 "command": [
                     "CMD-SHELL",
-                    "curl -fsS http://localhost:3000/api/public/health || exit 1"
+                    "wget -q --spider http://localhost:3000/api/public/health || exit 1"
                 ],
                 "interval": 15,
                 "timeout": 5,
@@ -198,7 +198,7 @@
             "healthCheck": {
                 "command": [
                     "CMD-SHELL",
-                    "curl -fsS http://localhost:3030/api/health || exit 1"
+                    "wget -q --spider http://localhost:3030/api/health || exit 1"
                 ],
                 "interval": 15,
                 "timeout": 5,
