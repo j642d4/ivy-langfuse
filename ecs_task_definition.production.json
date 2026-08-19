@@ -35,7 +35,7 @@
                 },
                 {
                     "name": "NEXTAUTH_URL",
-                    "value": "https://useivy.com/langfuse"
+                    "value": "https://langfuse.useivy.com"
                 },
                 {
                     "name": "LANGFUSE_INIT_ORG_ID",
@@ -55,23 +55,15 @@
                 },
                 {
                     "name": "CLICKHOUSE_URL",
-                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
+                    "value": "http://10.1.3.204:8123"
                 },
                 {
                     "name": "CLICKHOUSE_MIGRATION_URL",
-                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
-                },
-                {
-                    "name": "DATABASE_URL",
-                    "value": "postgresql://REPLACE_ME:REPLACE_ME@REPLACE_ME-postgres-host:5432/langfuse"
-                },
-                {
-                    "name": "REDIS_CONNECTION_STRING",
-                    "value": "rediss://REPLACE_ME-redis-host:6379"
+                    "value": "clickhouse://10.1.3.204:9000"
                 },
                 {
                     "name": "LANGFUSE_S3_EVENT_UPLOAD_BUCKET",
-                    "value": "REPLACE_ME_production_bucket_not_yet_provisioned"
+                    "value": "ivy-production-langfuse-data"
                 },
                 {
                     "name": "LANGFUSE_S3_EVENT_UPLOAD_REGION",
@@ -81,19 +73,27 @@
             "secrets": [
                 {
                     "name": "NEXTAUTH_SECRET",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:NEXTAUTH_SECRET::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:NEXTAUTH_SECRET::"
                 },
                 {
                     "name": "SALT",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:SALT::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:SALT::"
                 },
                 {
                     "name": "ENCRYPTION_KEY",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:ENCRYPTION_KEY::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:ENCRYPTION_KEY::"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:DATABASE_URL::"
+                },
+                {
+                    "name": "REDIS_CONNECTION_STRING",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:REDIS_CONNECTION_STRING::"
                 },
                 {
                     "name": "CLICKHOUSE_PASSWORD",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-clickhouse"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-clickhouse"
                 }
             ],
             "mountPoints": [],
@@ -160,23 +160,15 @@
                 },
                 {
                     "name": "CLICKHOUSE_URL",
-                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
+                    "value": "http://10.1.3.204:8123"
                 },
                 {
                     "name": "CLICKHOUSE_MIGRATION_URL",
-                    "value": "REPLACE_ME_production_clickhouse_not_yet_provisioned"
-                },
-                {
-                    "name": "DATABASE_URL",
-                    "value": "postgresql://REPLACE_ME:REPLACE_ME@REPLACE_ME-postgres-host:5432/langfuse"
-                },
-                {
-                    "name": "REDIS_CONNECTION_STRING",
-                    "value": "rediss://REPLACE_ME-redis-host:6379"
+                    "value": "clickhouse://10.1.3.204:9000"
                 },
                 {
                     "name": "LANGFUSE_S3_EVENT_UPLOAD_BUCKET",
-                    "value": "REPLACE_ME_production_bucket_not_yet_provisioned"
+                    "value": "ivy-production-langfuse-data"
                 },
                 {
                     "name": "LANGFUSE_S3_EVENT_UPLOAD_REGION",
@@ -186,11 +178,19 @@
             "secrets": [
                 {
                     "name": "ENCRYPTION_KEY",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:ENCRYPTION_KEY::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:ENCRYPTION_KEY::"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:DATABASE_URL::"
+                },
+                {
+                    "name": "REDIS_CONNECTION_STRING",
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:REDIS_CONNECTION_STRING::"
                 },
                 {
                     "name": "CLICKHOUSE_PASSWORD",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-clickhouse"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-clickhouse"
                 }
             ],
             "mountPoints": [],
