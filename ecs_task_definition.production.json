@@ -73,27 +73,27 @@
             "secrets": [
                 {
                     "name": "NEXTAUTH_SECRET",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:NEXTAUTH_SECRET::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:NEXTAUTH_SECRET::"
                 },
                 {
                     "name": "SALT",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:SALT::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:SALT::"
                 },
                 {
                     "name": "ENCRYPTION_KEY",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:ENCRYPTION_KEY::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:ENCRYPTION_KEY::"
                 },
                 {
                     "name": "DATABASE_URL",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:DATABASE_URL::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:DATABASE_URL::"
                 },
                 {
                     "name": "REDIS_CONNECTION_STRING",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:REDIS_CONNECTION_STRING::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:REDIS_CONNECTION_STRING::"
                 },
                 {
                     "name": "CLICKHOUSE_PASSWORD",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-clickhouse"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-clickhouse"
                 }
             ],
             "mountPoints": [],
@@ -178,19 +178,19 @@
             "secrets": [
                 {
                     "name": "ENCRYPTION_KEY",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:ENCRYPTION_KEY::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:ENCRYPTION_KEY::"
                 },
                 {
                     "name": "DATABASE_URL",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:DATABASE_URL::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:DATABASE_URL::"
                 },
                 {
                     "name": "REDIS_CONNECTION_STRING",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-langfuse:REDIS_CONNECTION_STRING::"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-langfuse:REDIS_CONNECTION_STRING::"
                 },
                 {
                     "name": "CLICKHOUSE_PASSWORD",
-                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/staging/secret-manager-clickhouse"
+                    "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<ACCOUNT_ID>:secret:/ivy/production/secret-manager-clickhouse"
                 }
             ],
             "mountPoints": [],
