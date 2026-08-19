@@ -19,9 +19,6 @@ env:
   ER_ARN: "ecs-task-execution-role-ivy-langfuse-production"
   AWS_LG: "/ecs/production/ivy-langfuse"
   T_FAMILY: "ivy-langfuse-production"
-  # Reusing the existing shared "backend" ECR repo rather than creating dedicated
-  # langfuse-web/langfuse-worker repos — both images land here, disambiguated by
-  # tag prefix (web-<tag> / worker-<tag>) instead of by repository.
   ECR_REPOSITORY_NAME: "ivy-backend-production"
 
 jobs:
