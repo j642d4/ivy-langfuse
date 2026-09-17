@@ -5,6 +5,7 @@ import {
   planEventFacetQueries,
   splitFacetFilter,
 } from "@/src/features/events/lib/facet-query-plan";
+import { sortOptionValues } from "@/src/features/filters";
 
 type EventFilterOptionColumnsInput =
   RouterInputs["events"]["filterOptions"]["columns"];
@@ -34,10 +35,14 @@ const ALL_EVENT_FILTER_OPTION_COLUMNS = [
   "type",
   "userId",
   "version",
+  "release",
   "sessionId",
   "level",
   "environment",
   "ingestionApiKey",
+  "ingestionSdkName",
+  "ingestionSdkVersion",
+  "ingestionSource",
   "experimentDatasetId",
   "experimentId",
   "experimentName",
@@ -137,6 +142,14 @@ type UseEventsFilterOptionsParams = {
    * typed into.
    */
   lazy?: boolean;
+  /**
+   * Off keeps every query unmounted and reports "settled with nothing". For a
+   * surface that exists on both read paths (Users) and picks its option source
+   * per path: a v3 project must not scan `events_core`, and a disabled query is
+   * `pending` forever in react-query, which would skeleton the sidebar for good
+   * if that flag were passed through unchanged.
+   */
+  enabled?: boolean;
 };
 
 export function useEventsFilterOptions({
@@ -147,6 +160,7 @@ export function useEventsFilterOptions({
   isRootObservation,
   columns,
   lazy = false,
+  enabled = true,
 }: UseEventsFilterOptionsParams) {
   // User-authored start-time conditions (search-bar `startTime:>…`) merge into
   // the authoritative startTimeFilter channel — the server ignores them in
@@ -231,6 +245,7 @@ export function useEventsFilterOptions({
       includeApproxCount,
     },
     {
+      enabled,
       trpc: { context: { skipBatch: true } },
       ...FILTER_OPTION_QUERY_OPTIONS,
     },
@@ -280,7 +295,7 @@ export function useEventsFilterOptions({
       perColumnPlan.map(({ column, filter }) =>
         t.events.filterOptions(
           { ...baseInput, filter, columns: [column] },
-          FILTER_OPTION_QUERY_OPTIONS,
+          { enabled, ...FILTER_OPTION_QUERY_OPTIONS },
         ),
       ),
     { combine: combineLazy },
@@ -317,17 +332,22 @@ export function useEventsFilterOptions({
     return {
       environment: rawData.environment ?? undefined,
       ingestionApiKey: rawData.ingestionApiKey ?? undefined,
+      ingestionSdkName: rawData.ingestionSdkName ?? undefined,
+      ingestionSdkVersion: rawData.ingestionSdkVersion ?? undefined,
+      ingestionSource: rawData.ingestionSource ?? undefined,
       name: rawData.name ?? undefined,
       type: rawData.type ?? undefined,
       level: rawData.level ?? undefined,
       providedModelName: rawData.providedModelName ?? undefined,
       modelId: rawData.modelId ?? undefined,
       promptName: rawData.promptName ?? undefined,
-      traceTags: rawData.traceTags ?? undefined,
+      // Tags read A→Z; every other facet keeps its count-descending order.
+      traceTags: sortOptionValues(rawData.traceTags),
       traceName: rawData.traceName ?? undefined,
       userId: rawData.userId ?? undefined,
       sessionId: rawData.sessionId ?? undefined,
       version: rawData.version ?? undefined,
+      release: rawData.release ?? undefined,
       experimentDatasetId: rawData.experimentDatasetId ?? undefined,
       experimentId: rawData.experimentId ?? undefined,
       experimentName: rawData.experimentName ?? undefined,
@@ -340,9 +360,11 @@ export function useEventsFilterOptions({
       timeToFirstToken: [],
       tokensPerSecond: [],
       inputTokens: [],
+      cachedInputTokens: [],
       outputTokens: [],
       totalTokens: [],
       inputCost: [],
+      cachedInputCost: [],
       outputCost: [],
       totalCost: [],
       score_categories: scoreCategories,
@@ -368,6 +390,9 @@ export function useEventsFilterOptions({
   // Each entry is gated on an in-flight fetch: a skeleton means "loading", not
   // "no data". On a terminal error the column is dropped (no auto-retry, so the
   // facet renders its empty state instead of skeletoning forever).
+  // A disabled query never leaves `pending`, so report it as settled-empty
+  // rather than letting consumers skeleton forever.
+  const isEagerPending = enabled && eagerQuery.isPending;
   const isEagerFetching = eagerQuery.isFetching;
   const bulkColumns = plan.bulk.columns;
   const loadingColumns = useMemo<ReadonlySet<string> | undefined>(() => {
@@ -415,7 +440,7 @@ export function useEventsFilterOptions({
 
   return {
     filterOptions: newFilterOptions,
-    isFilterOptionsPending: eagerQuery.isPending,
+    isFilterOptionsPending: isEagerPending,
     /** Approximate total observation count matching the refined filter, or null. */
     approxTotalCount,
     /** True while the first approximate-count value is still loading. */

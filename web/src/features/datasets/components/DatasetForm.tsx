@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/src/components/ui/form";
-import { api } from "@/src/utils/api";
+import { api, reportNonTrpcError } from "@/src/utils/api";
 import {
   useMemo,
   useState,
@@ -28,7 +28,7 @@ import {
   isValidJSONSchema,
   type Prisma,
 } from "@langfuse/shared";
-import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { usePostHogClientCapture } from "@/src/features/posthog-analytics";
 import { useRouter } from "next/router";
 import { useUniqueNameValidation } from "@/src/hooks/useUniqueNameValidation";
 import { DialogBody, DialogFooter } from "@/src/components/ui/dialog";
@@ -84,7 +84,7 @@ interface UpdateDatasetFormProps extends BaseDatasetFormProps {
 type DatasetFormProps = CreateDatasetFormProps | UpdateDatasetFormProps;
 
 // Validation schema for JSON Schema strings
-export const jsonSchemaStringValidator = z.string().refine(
+const jsonSchemaStringValidator = z.string().refine(
   (value) => {
     if (value === "") return true; // Empty is valid (means no schema)
 
@@ -287,7 +287,7 @@ export const DatasetForm = forwardRef<DatasetFormRef, DatasetFormProps>(
             // System error (not validation)
             setFormError(error.message);
             setServerSideSchemaValidationErrors(null);
-            console.error(error);
+            reportNonTrpcError(error, "datasets");
           });
       } else if (props.mode === "update") {
         capture("datasets:update_form_submit");
@@ -313,7 +313,7 @@ export const DatasetForm = forwardRef<DatasetFormRef, DatasetFormProps>(
             // System error (not validation)
             setFormError(error.message);
             setServerSideSchemaValidationErrors(null);
-            console.error(error);
+            reportNonTrpcError(error, "datasets");
           });
       }
     }
