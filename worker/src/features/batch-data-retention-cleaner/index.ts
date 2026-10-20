@@ -143,7 +143,8 @@ function buildRetentionConditions(
  * worker deletes from a given table at a time.
  *
  * Flow:
- * 1. Query PG for all projects with retentionDays > 0
+ * 1. Query PG for all projects with retentionDays > 0 (or all projects when
+ *    LANGFUSE_DEFAULT_DATA_RETENTION_DAYS is set)
  * 2. Calculate retention cutoff dates for each project
  * 3. Stream projects with expired rows from bounded project chunks
  * 4. Best-effort enrich candidates with total row count and oldest timestamp
@@ -313,14 +314,20 @@ export class BatchDataRetentionCleaner extends PeriodicExclusiveRunner {
   private async getProjectWorkloads(): Promise<ProjectWorkloadSelection> {
     const timestampColumn = TIMESTAMP_COLUMN_MAP[this.tableName];
 
-    // Step 1: Get all projects with retention from PostgreSQL
-    const projectsWithRetention = await prisma.project.findMany({
+    // Step 1: Get all projects with retention from PostgreSQL. With a default
+    // retention configured, projects without their own retention fall back to it.
+    const defaultRetentionDays = env.LANGFUSE_DEFAULT_DATA_RETENTION_DAYS;
+    const projects = await prisma.project.findMany({
       select: { id: true, retentionDays: true },
       where: {
-        retentionDays: { gt: 0 },
+        ...(defaultRetentionDays ? {} : { retentionDays: { gt: 0 } }),
         deletedAt: null,
       },
     });
+    const projectsWithRetention = projects.map((project) => ({
+      id: project.id,
+      retentionDays: project.retentionDays || defaultRetentionDays!,
+    }));
 
     if (projectsWithRetention.length === 0) {
       return {
@@ -336,8 +343,8 @@ export class BatchDataRetentionCleaner extends PeriodicExclusiveRunner {
     const allProjectRetentions: ProjectRetention[] = projectsWithRetention.map(
       (project) => ({
         projectId: project.id,
-        retentionDays: project.retentionDays!,
-        cutoffDate: getRetentionCutoffDate(project.retentionDays!, now),
+        retentionDays: project.retentionDays,
+        cutoffDate: getRetentionCutoffDate(project.retentionDays, now),
       }),
     );
 

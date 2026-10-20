@@ -173,6 +173,14 @@
                 {
                     "name": "LANGFUSE_S3_EVENT_UPLOAD_REGION",
                     "value": "<AWS_REGION>"
+                },
+                {
+                    "name": "LANGFUSE_BATCH_DATA_RETENTION_CLEANER_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "LANGFUSE_DEFAULT_DATA_RETENTION_DAYS",
+                    "value": "30"
                 }
             ],
             "secrets": [

@@ -480,6 +480,12 @@ const EnvSchema = z.object({
   LANGFUSE_BATCH_DATA_RETENTION_CLEANER_ENABLED: z
     .enum(["true", "false"])
     .default("false"),
+  // Fallback retention (days) for projects without their own retention_days
+  LANGFUSE_DEFAULT_DATA_RETENTION_DAYS: z.coerce
+    .number()
+    .int()
+    .gte(3)
+    .optional(),
   LANGFUSE_BATCH_DATA_RETENTION_CLEANER_INTERVAL_MS: z.coerce
     .number()
     .positive()
